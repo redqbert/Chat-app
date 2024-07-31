@@ -19,12 +19,15 @@ namespace Chat_app
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
             socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
 
+            Desconectar.Enabled = false;
+
+
         }
 
 
         private string GetLocalIP()
         {
-            //obtener las ips de la computadora
+            //obtener las ip de la computadora
             IPHostEntry entry = new IPHostEntry();
             entry = Dns.GetHostEntry(Dns.GetHostName());
 
@@ -42,21 +45,21 @@ namespace Chat_app
 
         private void Mensaje(IAsyncResult resultado)
         {
-       
-                int tamanio = socket.EndReceiveFrom(resultado, ref Visitante);
-                if (tamanio > 0)
-                {
-                    byte[] informacion = new byte[1024];
-                    informacion = (byte[])resultado.AsyncState;
 
-                    ASCIIEncoding encoding = new ASCIIEncoding();
-                    string mensaje = encoding.GetString(informacion);
+            int tamanio = socket.EndReceiveFrom(resultado, ref Visitante);
+            if (tamanio > 0)
+            {
+                byte[] informacion = new byte[1024];
+                informacion = (byte[])resultado.AsyncState;
 
-                    Historial.Items.Add(mensaje);
-                }
+                ASCIIEncoding encoding = new ASCIIEncoding();
+                string mensaje = encoding.GetString(informacion);
 
-                byte[] buffer = new byte[1024];
-                socket.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref Visitante, new AsyncCallback(Mensaje), buffer);
+                Historial.Items.Add(mensaje);
+            }
+
+            byte[] buffer = new byte[1024];
+            socket.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref Visitante, new AsyncCallback(Mensaje), buffer);
 
         }
 
@@ -87,32 +90,34 @@ namespace Chat_app
 
         private void button2_Click(object sender, EventArgs e)
         {
-                //configurar los sockets
-                Local = new IPEndPoint(IPAddress.Parse(GetLocalIP()), Convert.ToInt32(PuertoLocal.Text));
-                socket.Bind(Local);
+            //configurar los sockets
+            Local = new IPEndPoint(IPAddress.Parse(GetLocalIP()), Convert.ToInt32(PuertoLocal.Text));
+            socket.Bind(Local);
 
-                Visitante = new IPEndPoint(IPAddress.Parse(GetLocalIP()), Convert.ToInt32(PuertoVisitante.Text));
-                socket.Connect(Visitante);
+            Visitante = new IPEndPoint(IPAddress.Parse(GetLocalIP()), Convert.ToInt32(PuertoVisitante.Text));
+            socket.Connect(Visitante);
 
-                byte[] buffer = new byte[1024];
-                socket.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref Visitante, new AsyncCallback(Mensaje), buffer);
-                button2.Enabled = true;
+            byte[] buffer = new byte[1024];
+            socket.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref Visitante, new AsyncCallback(Mensaje), buffer);
+            button2.Enabled = false;
+            Desconectar.Enabled = true;
 
-                Chat.Focus();
+            Chat.Focus();
+
 
 
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
+            // empaquetar mensaje
+            System.Text.ASCIIEncoding encoding = new System.Text.ASCIIEncoding();
+            byte[] mensaje = new byte[1024];
+            mensaje = encoding.GetBytes(Chat.Text);
+            socket.Send(mensaje);
+            Historial.Items.Add("Enviado: " + Chat.Text);
+            Chat.Clear();//Limpiar chat
 
-                System.Text.ASCIIEncoding encoding = new System.Text.ASCIIEncoding();
-                byte[] mensaje = new byte[1024];
-                mensaje = encoding.GetBytes(Chat.Text);
-                socket.Send(mensaje);
-                Historial.Items.Add("Enviado: "+Chat.Text);
-                Chat.Clear();
- 
         }
 
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
@@ -151,6 +156,17 @@ namespace Chat_app
 
         private void listBox1_SelectedIndexChanged_1(object sender, EventArgs e)
         {
+
+        }
+
+        public void Desconectar_Click(object sender, EventArgs e)
+        {
+            //Crear sockets
+            socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+            button2.Enabled = true;
+            Desconectar.Enabled = false;
+
 
         }
     }

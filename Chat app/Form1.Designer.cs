@@ -38,6 +38,7 @@
             button2 = new Button();
             Chat = new TextBox();
             Historial = new ListBox();
+            Desconectar = new Button();
             groupBox1.SuspendLayout();
             groupBox2.SuspendLayout();
             SuspendLayout();
@@ -141,11 +142,22 @@
             Historial.TabIndex = 8;
             Historial.SelectedIndexChanged += listBox1_SelectedIndexChanged_1;
             // 
+            // Desconectar
+            // 
+            Desconectar.Location = new Point(147, 256);
+            Desconectar.Name = "Desconectar";
+            Desconectar.Size = new Size(75, 23);
+            Desconectar.TabIndex = 9;
+            Desconectar.Text = "Apagar";
+            Desconectar.UseVisualStyleBackColor = true;
+            Desconectar.Click += Desconectar_Click;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(Desconectar);
             Controls.Add(Historial);
             Controls.Add(Chat);
             Controls.Add(button2);
@@ -174,5 +186,6 @@
         private Button button2;
         private TextBox Chat;
         private ListBox Historial;
+        private Button Desconectar;
     }
 }

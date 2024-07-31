@@ -19,15 +19,12 @@ namespace Chat_app
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
             socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
 
-            localip.Text = GetLocalIP();
-
-            Ipvisit.Text = GetLocalIP();
-
         }
 
 
         private string GetLocalIP()
         {
+            //obtener las ips de la computadora
             IPHostEntry entry = new IPHostEntry();
             entry = Dns.GetHostEntry(Dns.GetHostName());
 
@@ -45,8 +42,7 @@ namespace Chat_app
 
         private void Mensaje(IAsyncResult resultado)
         {
-            try
-            {
+       
                 int tamanio = socket.EndReceiveFrom(resultado, ref Visitante);
                 if (tamanio > 0)
                 {
@@ -61,15 +57,6 @@ namespace Chat_app
 
                 byte[] buffer = new byte[1024];
                 socket.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref Visitante, new AsyncCallback(Mensaje), buffer);
-
-
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.ToString());
-
-            }
-
 
         }
 
@@ -100,8 +87,7 @@ namespace Chat_app
 
         private void button2_Click(object sender, EventArgs e)
         {
-            try
-            {
+                //configurar los sockets
                 Local = new IPEndPoint(IPAddress.Parse(GetLocalIP()), Convert.ToInt32(PuertoLocal.Text));
                 socket.Bind(Local);
 
@@ -114,25 +100,19 @@ namespace Chat_app
 
                 Chat.Focus();
 
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.ToString());
 
-            }
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            try
-            {
 
-
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.ToString());
-            }
+                System.Text.ASCIIEncoding encoding = new System.Text.ASCIIEncoding();
+                byte[] mensaje = new byte[1024];
+                mensaje = encoding.GetBytes(Chat.Text);
+                socket.Send(mensaje);
+                Historial.Items.Add("Enviado: "+Chat.Text);
+                Chat.Clear();
+ 
         }
 
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
